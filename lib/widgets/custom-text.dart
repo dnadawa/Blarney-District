@@ -8,13 +8,17 @@ class CustomText extends StatelessWidget {
   final TextAlign align;
   final bool isBold;
   final String font;
-  const CustomText({Key key, this.text, this.size, this.color=Colors.white, this.align=TextAlign.center, this.isBold=false, this.font}) : super(key: key);
+  final int maxLines;
+  final TextOverflow overflow;
+  const CustomText({Key key, this.text, this.size, this.color=Colors.white, this.align=TextAlign.center, this.isBold=false, this.font, this.maxLines, this.overflow}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Text(
       text,
       textAlign: align,
+      maxLines: maxLines,
+      overflow: overflow,
       style: TextStyle(
         color: color,
         fontFamily: font,
