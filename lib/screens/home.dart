@@ -144,8 +144,8 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin{
                 endIndent: ScreenUtil().setHeight(50),
               ),
               ListTile(
-                leading: Icon(Icons.settings,color: Colors.white,),
-                title: CustomText(text: 'Settings',isBold: true,size: ScreenUtil().setSp(50),align: TextAlign.start,),
+                leading: Icon(Icons.power_settings_new,color: Colors.white,),
+                title: CustomText(text: 'Log out',isBold: true,size: ScreenUtil().setSp(50),align: TextAlign.start,),
               ),
               SizedBox(height: ScreenUtil().setHeight(20),),
             ],
