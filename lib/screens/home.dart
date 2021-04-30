@@ -7,6 +7,8 @@ import 'package:village_app/screens/recent-reviews.dart';
 import 'package:village_app/screens/special-offers.dart';
 import 'package:village_app/widgets/custom-text.dart';
 
+import 'facebook-feed.dart';
+
 class Home extends StatefulWidget {
   @override
   _HomeState createState() => _HomeState();
@@ -179,9 +181,10 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin{
 
       body: TabBarView(
         controller: _tabController,
+        physics: NeverScrollableScrollPhysics(),
         children: [
           Container(color: Colors.red,),
-          Container(color: Colors.green,),
+          FacebookFeed(),
           SpecialOffers(),
           RecentReviews(),
           BusinessDirectory(),
