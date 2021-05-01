@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -12,6 +15,31 @@ class BusinessDirectory extends StatefulWidget {
 }
 
 class _BusinessDirectoryState extends State<BusinessDirectory> {
+  List<DocumentSnapshot> businesses;
+  StreamSubscription<QuerySnapshot> subscription;
+
+  getBusinesses(){
+    subscription = FirebaseFirestore.instance.collection('businesses').snapshots().listen((datasnapshot){
+      setState(() {
+        businesses = datasnapshot.docs;
+      });
+    });
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    getBusinesses();
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+    subscription?.cancel();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -31,13 +59,39 @@ class _BusinessDirectoryState extends State<BusinessDirectory> {
           Expanded(
             child: Padding(
               padding:  EdgeInsets.all(ScreenUtil().setHeight(25)),
-              child: ListView(
-                children: [
-                  GestureDetector(
+              child: businesses!=null?ListView.builder(
+                itemCount: businesses.length,
+                itemBuilder: (context, i){
+                  String name = businesses[i]['name'];
+                  String description = businesses[i]['description'];
+                  String phone = businesses[i]['phone'];
+                  String address = businesses[i]['address'];
+                  String facebook = businesses[i]['facebook'];
+                  String twitter = businesses[i]['twitter'];
+                  String instagram = businesses[i]['instagram'];
+                  String image = businesses[i]['image'];
+                  String rating = businesses[i]['rating'].toString();
+                  int reviews = businesses[i]['reviews'];
+                  double lat = businesses[i]['lat'];
+                  double long = businesses[i]['long'];
+
+                  return GestureDetector(
                     onTap: (){
                       Navigator.push(
                         context,
-                        CupertinoPageRoute(builder: (context) => IndividualBusiness()),
+                        CupertinoPageRoute(builder: (context) => IndividualBusiness(
+                          image: image,
+                          phone: phone,
+                          description: description,
+                          address: address,
+                          facebook: facebook,
+                          instagram: instagram,
+                          rating: rating,
+                          reviews: reviews,
+                          twitter: twitter,
+                          lat: lat,
+                          long: long,
+                        )),
                       );
                     },
                     child: Padding(
@@ -49,7 +103,11 @@ class _BusinessDirectoryState extends State<BusinessDirectory> {
                           Container(
                             width: MediaQuery.of(context).size.width/3,
                             height: MediaQuery.of(context).size.width/3,
-                            color: Colors.blue,
+                            color: Colors.transparent,
+                            child: FadeInImage(
+                              image: NetworkImage(image),
+                              placeholder: AssetImage('images/business.png'),
+                            ),
                           ),
                           SizedBox(width: ScreenUtil().setWidth(20),),
 
@@ -61,7 +119,7 @@ class _BusinessDirectoryState extends State<BusinessDirectory> {
 
                                 ///name
                                 CustomText(
-                                  text: 'Village Cafe',
+                                  text: name,
                                   isBold: true,
                                   color: Theme.of(context).primaryColor,
                                   size: ScreenUtil().setSp(70),
@@ -72,7 +130,7 @@ class _BusinessDirectoryState extends State<BusinessDirectory> {
 
                                 ///description
                                 CustomText(
-                                  text: 'Award wining cafe located near the village square. Coffee/Tea, Sandwiches and more',
+                                  text: description,
                                   isBold: true,
                                   maxLines: 3,
                                   overflow: TextOverflow.ellipsis,
@@ -89,7 +147,7 @@ class _BusinessDirectoryState extends State<BusinessDirectory> {
 
                                     ///stars
                                     RatingBarIndicator(
-                                      rating: 4,
+                                      rating: double.parse(rating),
                                       itemBuilder: (context, index) => Icon(
                                         Icons.star,
                                         color: Color(0xffD3DB11),
@@ -101,7 +159,7 @@ class _BusinessDirectoryState extends State<BusinessDirectory> {
 
                                     ///rating text
                                     CustomText(
-                                      text: '4.5/5.0 (10 Reviews)',
+                                      text: '$rating/5.0 ($reviews Reviews)',
                                       color: Colors.black,
                                       size: ScreenUtil().setSp(35),
                                       align: TextAlign.start,
@@ -124,7 +182,7 @@ class _BusinessDirectoryState extends State<BusinessDirectory> {
                                           SizedBox(width: ScreenUtil().setWidth(5),),
                                           Expanded(
                                             child: CustomText(
-                                              text: 'Klin Road',
+                                              text: address,
                                               overflow: TextOverflow.ellipsis,
                                               color: Color(0xff3800D3),
                                               size: ScreenUtil().setSp(35),
@@ -142,7 +200,7 @@ class _BusinessDirectoryState extends State<BusinessDirectory> {
                                         Icon(Icons.phone,color: Color(0xff0B8A28),size: 18,),
                                         SizedBox(width: ScreenUtil().setWidth(5),),
                                         CustomText(
-                                          text: '021 438 1111',
+                                          text: phone,
                                           color: Color(0xff0B8A28),
                                           size: ScreenUtil().setSp(35),
                                           align: TextAlign.start,
@@ -158,482 +216,9 @@ class _BusinessDirectoryState extends State<BusinessDirectory> {
                         ],
                       ),
                     ),
-                  ),
-                  Padding(
-                    padding:  EdgeInsets.only(bottom: ScreenUtil().setHeight(25)),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        ///picture
-                        Container(
-                          width: MediaQuery.of(context).size.width/3,
-                          height: MediaQuery.of(context).size.width/3,
-                          color: Colors.blue,
-                        ),
-                        SizedBox(width: ScreenUtil().setWidth(20),),
-
-                        ///details
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-
-                              ///name
-                              CustomText(
-                                text: 'Village Cafe',
-                                isBold: true,
-                                color: Theme.of(context).primaryColor,
-                                size: ScreenUtil().setSp(70),
-                                align: TextAlign.start,
-                              ),
-                              SizedBox(height: ScreenUtil().setWidth(15),),
-
-
-                              ///description
-                              CustomText(
-                                text: 'Award wining cafe located near the village square. Coffee/Tea, Sandwiches and more',
-                                isBold: true,
-                                maxLines: 3,
-                                overflow: TextOverflow.ellipsis,
-                                color: Colors.black,
-                                size: ScreenUtil().setSp(40),
-                                align: TextAlign.start,
-                              ),
-                              SizedBox(height: ScreenUtil().setWidth(15),),
-
-                              ///rating
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-
-                                  ///stars
-                                  RatingBarIndicator(
-                                    rating: 4,
-                                    itemBuilder: (context, index) => Icon(
-                                      Icons.star,
-                                      color: Color(0xffD3DB11),
-                                    ),
-                                    itemCount: 5,
-                                    itemSize: 18,
-                                  ),
-
-
-                                  ///rating text
-                                  CustomText(
-                                    text: '4.5/5.0 (10 Reviews)',
-                                    color: Colors.black,
-                                    size: ScreenUtil().setSp(35),
-                                    align: TextAlign.start,
-                                  ),
-                                ],
-                              ),
-                              SizedBox(height: ScreenUtil().setWidth(5),),
-
-                              ///contact
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-
-                                  ///location
-                                  Expanded(
-                                    child: Row(
-                                      crossAxisAlignment: CrossAxisAlignment.end,
-                                      children: [
-                                        Icon(Icons.room,color: Color(0xff3800D3),size: 18,),
-                                        SizedBox(width: ScreenUtil().setWidth(5),),
-                                        Expanded(
-                                          child: CustomText(
-                                            text: 'Klin Road',
-                                            overflow: TextOverflow.ellipsis,
-                                            color: Color(0xff3800D3),
-                                            size: ScreenUtil().setSp(35),
-                                            align: TextAlign.start,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-
-                                  ///phone
-                                  Row(
-                                    crossAxisAlignment: CrossAxisAlignment.end,
-                                    children: [
-                                      Icon(Icons.phone,color: Color(0xff0B8A28),size: 18,),
-                                      SizedBox(width: ScreenUtil().setWidth(5),),
-                                      CustomText(
-                                        text: '021 438 1111',
-                                        color: Color(0xff0B8A28),
-                                        size: ScreenUtil().setSp(35),
-                                        align: TextAlign.start,
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Padding(
-                    padding:  EdgeInsets.only(bottom: ScreenUtil().setHeight(25)),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        ///picture
-                        Container(
-                          width: MediaQuery.of(context).size.width/3,
-                          height: MediaQuery.of(context).size.width/3,
-                          color: Colors.blue,
-                        ),
-                        SizedBox(width: ScreenUtil().setWidth(20),),
-
-                        ///details
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-
-                              ///name
-                              CustomText(
-                                text: 'Village Cafe',
-                                isBold: true,
-                                color: Theme.of(context).primaryColor,
-                                size: ScreenUtil().setSp(70),
-                                align: TextAlign.start,
-                              ),
-                              SizedBox(height: ScreenUtil().setWidth(15),),
-
-
-                              ///description
-                              CustomText(
-                                text: 'Award wining cafe located near the village square. Coffee/Tea, Sandwiches and more',
-                                isBold: true,
-                                maxLines: 3,
-                                overflow: TextOverflow.ellipsis,
-                                color: Colors.black,
-                                size: ScreenUtil().setSp(40),
-                                align: TextAlign.start,
-                              ),
-                              SizedBox(height: ScreenUtil().setWidth(15),),
-
-                              ///rating
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-
-                                  ///stars
-                                  RatingBarIndicator(
-                                    rating: 4,
-                                    itemBuilder: (context, index) => Icon(
-                                      Icons.star,
-                                      color: Color(0xffD3DB11),
-                                    ),
-                                    itemCount: 5,
-                                    itemSize: 18,
-                                  ),
-
-
-                                  ///rating text
-                                  CustomText(
-                                    text: '4.5/5.0 (10 Reviews)',
-                                    color: Colors.black,
-                                    size: ScreenUtil().setSp(35),
-                                    align: TextAlign.start,
-                                  ),
-                                ],
-                              ),
-                              SizedBox(height: ScreenUtil().setWidth(5),),
-
-                              ///contact
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-
-                                  ///location
-                                  Expanded(
-                                    child: Row(
-                                      crossAxisAlignment: CrossAxisAlignment.end,
-                                      children: [
-                                        Icon(Icons.room,color: Color(0xff3800D3),size: 18,),
-                                        SizedBox(width: ScreenUtil().setWidth(5),),
-                                        Expanded(
-                                          child: CustomText(
-                                            text: 'Klin Road',
-                                            overflow: TextOverflow.ellipsis,
-                                            color: Color(0xff3800D3),
-                                            size: ScreenUtil().setSp(35),
-                                            align: TextAlign.start,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-
-                                  ///phone
-                                  Row(
-                                    crossAxisAlignment: CrossAxisAlignment.end,
-                                    children: [
-                                      Icon(Icons.phone,color: Color(0xff0B8A28),size: 18,),
-                                      SizedBox(width: ScreenUtil().setWidth(5),),
-                                      CustomText(
-                                        text: '021 438 1111',
-                                        color: Color(0xff0B8A28),
-                                        size: ScreenUtil().setSp(35),
-                                        align: TextAlign.start,
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Padding(
-                    padding:  EdgeInsets.only(bottom: ScreenUtil().setHeight(25)),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        ///picture
-                        Container(
-                          width: MediaQuery.of(context).size.width/3,
-                          height: MediaQuery.of(context).size.width/3,
-                          color: Colors.blue,
-                        ),
-                        SizedBox(width: ScreenUtil().setWidth(20),),
-
-                        ///details
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-
-                              ///name
-                              CustomText(
-                                text: 'Village Cafe',
-                                isBold: true,
-                                color: Theme.of(context).primaryColor,
-                                size: ScreenUtil().setSp(70),
-                                align: TextAlign.start,
-                              ),
-                              SizedBox(height: ScreenUtil().setWidth(15),),
-
-
-                              ///description
-                              CustomText(
-                                text: 'Award wining cafe located near the village square. Coffee/Tea, Sandwiches and more',
-                                isBold: true,
-                                maxLines: 3,
-                                overflow: TextOverflow.ellipsis,
-                                color: Colors.black,
-                                size: ScreenUtil().setSp(40),
-                                align: TextAlign.start,
-                              ),
-                              SizedBox(height: ScreenUtil().setWidth(15),),
-
-                              ///rating
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-
-                                  ///stars
-                                  RatingBarIndicator(
-                                    rating: 4,
-                                    itemBuilder: (context, index) => Icon(
-                                      Icons.star,
-                                      color: Color(0xffD3DB11),
-                                    ),
-                                    itemCount: 5,
-                                    itemSize: 18,
-                                  ),
-
-
-                                  ///rating text
-                                  CustomText(
-                                    text: '4.5/5.0 (10 Reviews)',
-                                    color: Colors.black,
-                                    size: ScreenUtil().setSp(35),
-                                    align: TextAlign.start,
-                                  ),
-                                ],
-                              ),
-                              SizedBox(height: ScreenUtil().setWidth(5),),
-
-                              ///contact
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-
-                                  ///location
-                                  Expanded(
-                                    child: Row(
-                                      crossAxisAlignment: CrossAxisAlignment.end,
-                                      children: [
-                                        Icon(Icons.room,color: Color(0xff3800D3),size: 18,),
-                                        SizedBox(width: ScreenUtil().setWidth(5),),
-                                        Expanded(
-                                          child: CustomText(
-                                            text: 'Klin Road',
-                                            overflow: TextOverflow.ellipsis,
-                                            color: Color(0xff3800D3),
-                                            size: ScreenUtil().setSp(35),
-                                            align: TextAlign.start,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-
-                                  ///phone
-                                  Row(
-                                    crossAxisAlignment: CrossAxisAlignment.end,
-                                    children: [
-                                      Icon(Icons.phone,color: Color(0xff0B8A28),size: 18,),
-                                      SizedBox(width: ScreenUtil().setWidth(5),),
-                                      CustomText(
-                                        text: '021 438 1111',
-                                        color: Color(0xff0B8A28),
-                                        size: ScreenUtil().setSp(35),
-                                        align: TextAlign.start,
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Padding(
-                    padding:  EdgeInsets.only(bottom: ScreenUtil().setHeight(25)),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        ///picture
-                        Container(
-                          width: MediaQuery.of(context).size.width/3,
-                          height: MediaQuery.of(context).size.width/3,
-                          color: Colors.blue,
-                        ),
-                        SizedBox(width: ScreenUtil().setWidth(20),),
-
-                        ///details
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-
-                              ///name
-                              CustomText(
-                                text: 'Village Cafe',
-                                isBold: true,
-                                color: Theme.of(context).primaryColor,
-                                size: ScreenUtil().setSp(70),
-                                align: TextAlign.start,
-                              ),
-                              SizedBox(height: ScreenUtil().setWidth(15),),
-
-
-                              ///description
-                              CustomText(
-                                text: 'Award wining cafe located near the village square. Coffee/Tea, Sandwiches and more',
-                                isBold: true,
-                                maxLines: 3,
-                                overflow: TextOverflow.ellipsis,
-                                color: Colors.black,
-                                size: ScreenUtil().setSp(40),
-                                align: TextAlign.start,
-                              ),
-                              SizedBox(height: ScreenUtil().setWidth(15),),
-
-                              ///rating
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-
-                                  ///stars
-                                  RatingBarIndicator(
-                                    rating: 4,
-                                    itemBuilder: (context, index) => Icon(
-                                      Icons.star,
-                                      color: Color(0xffD3DB11),
-                                    ),
-                                    itemCount: 5,
-                                    itemSize: 18,
-                                  ),
-
-
-                                  ///rating text
-                                  CustomText(
-                                    text: '4.5/5.0 (10 Reviews)',
-                                    color: Colors.black,
-                                    size: ScreenUtil().setSp(35),
-                                    align: TextAlign.start,
-                                  ),
-                                ],
-                              ),
-                              SizedBox(height: ScreenUtil().setWidth(5),),
-
-                              ///contact
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-
-                                  ///location
-                                  Expanded(
-                                    child: Row(
-                                      crossAxisAlignment: CrossAxisAlignment.end,
-                                      children: [
-                                        Icon(Icons.room,color: Color(0xff3800D3),size: 18,),
-                                        SizedBox(width: ScreenUtil().setWidth(5),),
-                                        Expanded(
-                                          child: CustomText(
-                                            text: 'Klin Road',
-                                            overflow: TextOverflow.ellipsis,
-                                            color: Color(0xff3800D3),
-                                            size: ScreenUtil().setSp(35),
-                                            align: TextAlign.start,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-
-                                  ///phone
-                                  Row(
-                                    crossAxisAlignment: CrossAxisAlignment.end,
-                                    children: [
-                                      Icon(Icons.phone,color: Color(0xff0B8A28),size: 18,),
-                                      SizedBox(width: ScreenUtil().setWidth(5),),
-                                      CustomText(
-                                        text: '021 438 1111',
-                                        color: Color(0xff0B8A28),
-                                        size: ScreenUtil().setSp(35),
-                                        align: TextAlign.start,
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                ],
-              ),
+                  );
+                },
+              ):Center(child: CircularProgressIndicator(valueColor: new AlwaysStoppedAnimation<Color>(Theme.of(context).primaryColor),),),
             ),
           )
         ],

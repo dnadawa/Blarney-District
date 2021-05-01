@@ -5,6 +5,8 @@
    <application
         android:label="village_app"
         android:icon="@mipmap/ic_launcher">
+       <meta-data android:name="com.google.android.geo.API_KEY"
+           android:value="AIzaSyBv0Vrhz3LsHJvqDF83o6xw7yVKb9cKSrk"/>
         <activity
             android:name=".MainActivity"
             android:launchMode="singleTop"

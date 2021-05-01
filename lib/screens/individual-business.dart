@@ -2,15 +2,35 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:village_app/widgets/custom-text.dart';
 import 'package:village_app/widgets/icon-text-button.dart';
+import 'package:village_app/widgets/toast.dart';
 
 class IndividualBusiness extends StatefulWidget {
+  final String image;
+  final String description;
+  final String phone;
+  final String facebook;
+  final String instagram;
+  final String twitter;
+  final String address;
+  final String rating;
+  final int reviews;
+  final double lat;
+  final double long;
+
+  const IndividualBusiness({Key key, this.image, this.description, this.phone, this.facebook, this.instagram, this.twitter, this.address, this.rating, this.reviews, this.lat, this.long}) : super(key: key);
   @override
   _IndividualBusinessState createState() => _IndividualBusinessState();
 }
 
 class _IndividualBusinessState extends State<IndividualBusiness> {
+
+  void _launchURL(String url) async =>
+      await canLaunch(url) ? await launch(url) : ToastBar(text: 'Something went wrong!',color: Colors.red).show();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -31,14 +51,15 @@ class _IndividualBusinessState extends State<IndividualBusiness> {
 
               ///image
               Container(
-                color: Colors.blue,
+                width: double.infinity,
                 height: ScreenUtil().setHeight(500),
+                child: Image.network(widget.image,fit: BoxFit.cover,),
               ),
               SizedBox(height: ScreenUtil().setWidth(30),),
 
               ///description
               CustomText(
-                text: 'Award wining cafe located near the village square. Coffee/Tea, Sandwiches and more',
+                text: widget.description,
                 isBold: true,
                 color: Colors.black,
                 size: ScreenUtil().setSp(40),
@@ -53,43 +74,55 @@ class _IndividualBusinessState extends State<IndividualBusiness> {
                 children: [
 
                   ///phone
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Icon(Icons.phone,color: Color(0xff0B8A28),size: 20,),
-                      SizedBox(width: ScreenUtil().setWidth(20),),
-                      CustomText(
-                        text: '021 438 1111',
-                        color: Color(0xff0B8A28),
-                        size: ScreenUtil().setSp(50),
-                        align: TextAlign.start,
-                      ),
-                    ],
+                  GestureDetector(
+                    onTap: ()=>_launchURL('tel:${widget.phone}'),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Icon(Icons.phone,color: Color(0xff0B8A28),size: 20,),
+                        SizedBox(width: ScreenUtil().setWidth(20),),
+                        CustomText(
+                          text: widget.phone,
+                          color: Color(0xff0B8A28),
+                          size: ScreenUtil().setSp(50),
+                          align: TextAlign.start,
+                        ),
+                      ],
+                    ),
                   ),
                   
                   Row(
                     children: [
                       ///facebook
-                      SizedBox(
-                        width: ScreenUtil().setHeight(80),
-                        height: ScreenUtil().setHeight(80),
-                        child: Image.asset('images/facebook.png'),
+                      GestureDetector(
+                        onTap: ()=>_launchURL(widget.facebook),
+                        child: SizedBox(
+                          width: ScreenUtil().setHeight(80),
+                          height: ScreenUtil().setHeight(80),
+                          child: Image.asset('images/facebook.png'),
+                        ),
                       ),
                       SizedBox(width: ScreenUtil().setWidth(20),),
 
                       ///twitter
-                      SizedBox(
-                        width: ScreenUtil().setHeight(80),
-                        height: ScreenUtil().setHeight(80),
-                        child: Image.asset('images/twitter.png'),
+                      GestureDetector(
+                        onTap: ()=>_launchURL(widget.twitter),
+                        child: SizedBox(
+                          width: ScreenUtil().setHeight(80),
+                          height: ScreenUtil().setHeight(80),
+                          child: Image.asset('images/twitter.png'),
+                        ),
                       ),
                       SizedBox(width: ScreenUtil().setWidth(20),),
 
                       ///instagram
-                      SizedBox(
-                        width: ScreenUtil().setHeight(80),
-                        height: ScreenUtil().setHeight(80),
-                        child: Image.asset('images/insta.png'),
+                      GestureDetector(
+                        onTap: ()=>_launchURL(widget.instagram),
+                        child: SizedBox(
+                          width: ScreenUtil().setHeight(80),
+                          height: ScreenUtil().setHeight(80),
+                          child: Image.asset('images/insta.png'),
+                        ),
                       ),
                       SizedBox(width: ScreenUtil().setWidth(20),),
                     ],
@@ -139,18 +172,21 @@ class _IndividualBusinessState extends State<IndividualBusiness> {
               SizedBox(height: ScreenUtil().setWidth(60),),
 
               ///address
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Icon(Icons.room,color: Color(0xff3800D3),size: 20,),
-                  SizedBox(width: ScreenUtil().setWidth(20),),
-                  CustomText(
-                    text: 'Kiln Road',
-                    color: Color(0xff3800D3),
-                    size: ScreenUtil().setSp(50),
-                    align: TextAlign.start,
-                  ),
-                ],
+              GestureDetector(
+                onTap: ()=>_launchURL('https://www.google.com/maps/search/?api=1&query=${widget.lat},${widget.long}'),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Icon(Icons.room,color: Color(0xff3800D3),size: 20,),
+                    SizedBox(width: ScreenUtil().setWidth(20),),
+                    CustomText(
+                      text: widget.address,
+                      color: Color(0xff3800D3),
+                      size: ScreenUtil().setSp(50),
+                      align: TextAlign.start,
+                    ),
+                  ],
+                ),
               ),
               SizedBox(height: ScreenUtil().setWidth(30),),
 
@@ -158,6 +194,27 @@ class _IndividualBusinessState extends State<IndividualBusiness> {
               Container(
                 height: ScreenUtil().setHeight(350),
                 color: Colors.green,
+                child: GoogleMap(
+                  mapType: MapType.normal,
+                  mapToolbarEnabled: false,
+                  myLocationButtonEnabled: false,
+                  zoomControlsEnabled: false,
+                  compassEnabled: false,
+                  rotateGesturesEnabled: false,
+                  scrollGesturesEnabled: false,
+                  zoomGesturesEnabled: false,
+                  tiltGesturesEnabled: false,
+                  markers: {
+                    Marker(
+                      markerId: MarkerId('1'),
+                      position: LatLng(widget.lat, widget.long),
+                    )
+                  },
+                  initialCameraPosition: CameraPosition(
+                    target: LatLng(widget.lat, widget.long),
+                    zoom: 16,
+                  ),
+                ),
               ),
               SizedBox(height: ScreenUtil().setWidth(40),),
 
@@ -178,7 +235,7 @@ class _IndividualBusinessState extends State<IndividualBusiness> {
 
                   ///stars
                   RatingBarIndicator(
-                    rating: 4,
+                    rating: double.parse(widget.rating),
                     itemBuilder: (context, index) => Icon(
                       Icons.star,
                       color: Color(0xffD3DB11),
@@ -191,7 +248,7 @@ class _IndividualBusinessState extends State<IndividualBusiness> {
 
                   ///rating text
                   CustomText(
-                    text: '4.5/5.0\n(10 Reviews)',
+                    text: '${widget.rating}/5.0\n(${widget.reviews} Reviews)',
                     color: Colors.black,
                     size: ScreenUtil().setSp(35),
                     align: TextAlign.start,
