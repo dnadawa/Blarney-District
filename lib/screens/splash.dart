@@ -1,7 +1,9 @@
 import 'dart:async';
 
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:village_app/screens/home.dart';
+import 'package:village_app/screens/welcome.dart';
 
 class Splash extends StatefulWidget {
   @override
@@ -10,14 +12,19 @@ class Splash extends StatefulWidget {
 
 class _SplashState extends State<Splash> {
 
+  _initFirebase() async {
+    await Firebase.initializeApp();
+  }
+
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
+    _initFirebase();
     Timer(Duration(seconds: 3), (){
       Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(builder: (context) =>
-              Home()), (Route<dynamic> route) => false);
+              Welcome()), (Route<dynamic> route) => false);
     });
   }
   @override

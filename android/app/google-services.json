@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "143709578473",
+    "project_id": "blarney-and-district",
+    "storage_bucket": "blarney-and-district.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:143709578473:android:ebc351840ef6ef926d3c78",
+        "android_client_info": {
+          "package_name": "com.digiwrecks.village_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "143709578473-4r2akdt9g7jr9equ5fdkcnklhduv6drj.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBD98iVzqp1NDttyqGA2uzT2zjfQ93-m7A"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "143709578473-4r2akdt9g7jr9equ5fdkcnklhduv6drj.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

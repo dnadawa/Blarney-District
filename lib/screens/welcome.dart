@@ -1,5 +1,7 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:village_app/screens/sign-up.dart';
 import 'package:village_app/widgets/button.dart';
 import 'package:village_app/widgets/custom-text.dart';
 
@@ -47,7 +49,12 @@ class Welcome extends StatelessWidget {
                 text: 'Sign up',
                 color: Theme.of(context).primaryColor,
                 textColor: Color(0xffC7A92B),
-                onclick: (){},
+                onclick: (){
+                  Navigator.push(
+                    context,
+                    CupertinoPageRoute(builder: (context) => SignUp()),
+                  );
+                },
               ),
             ),
             SizedBox(height: ScreenUtil().setHeight(20),),
