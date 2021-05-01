@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:village_app/screens/home.dart';
 import 'package:village_app/screens/welcome.dart';
 
@@ -21,10 +22,13 @@ class _SplashState extends State<Splash> {
     // TODO: implement initState
     super.initState();
     _initFirebase();
-    Timer(Duration(seconds: 3), (){
+    Timer(Duration(seconds: 3), () async {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String email = prefs.getString('email');
+
       Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(builder: (context) =>
-              Welcome()), (Route<dynamic> route) => false);
+              email==null?Welcome():Home()), (Route<dynamic> route) => false);
     });
   }
   @override
