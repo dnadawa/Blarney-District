@@ -57,7 +57,11 @@ class _SignUpState extends State<SignUp> {
           'fname': fName.text,
           'lname': lName.text,
           'image': url,
-          'email': email.text
+          'email': email.text,
+          'checkins': 0,
+          'reviews': 0,
+          'favourites': 0,
+          'joined': DateTime.now().toString()
         });
 
         ToastBar(text: 'User registered!',color: Colors.green).show();

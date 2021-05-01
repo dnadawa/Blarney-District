@@ -1,5 +1,8 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:village_app/widgets/custom-text.dart';
 
 class Profile extends StatefulWidget {
@@ -8,6 +11,39 @@ class Profile extends StatefulWidget {
 }
 
 class _ProfileState extends State<Profile> {
+  
+
+  String name="";
+  String image="";
+  int checkIns = 0;
+  int reviews = 0;
+  int favourites = 0;
+  var joined;
+
+  getUser() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String email = prefs.getString('email');
+
+    var sub = await FirebaseFirestore.instance.collection('users').where('email', isEqualTo: email).get();
+    var user = sub.docs;
+
+    setState(() {
+      name = user[0]['fname']+" "+user[0]['lname'];
+      image = user[0]['image'];
+      joined = DateFormat('MMMM yyyy').format(DateTime.parse(user[0]['joined']));
+      checkIns = user[0]['checkins'];
+      reviews = user[0]['reviews'];
+      favourites = user[0]['favourites'];
+    });
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    getUser();
+  }
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -26,16 +62,19 @@ class _ProfileState extends State<Profile> {
 
           ///pro pic
           CircleAvatar(
-            backgroundColor: Colors.red,
+            backgroundColor: Colors.transparent,
             radius: ScreenUtil().setHeight(150),
+           child: ClipOval(
+             child: FadeInImage(placeholder: AssetImage('images/avatar.png'), image: NetworkImage(image),fit: BoxFit.cover,height: ScreenUtil().setHeight(300),width: ScreenUtil().setHeight(300),),
+           ),
           ),
           Padding(
             padding:  EdgeInsets.only(top: ScreenUtil().setHeight(40)),
-            child: CustomText(text: 'John Buckley',color: Colors.black,size: ScreenUtil().setSp(70),isBold: true,),
+            child: CustomText(text: name,color: Colors.black,size: ScreenUtil().setSp(70),isBold: true,),
           ),
           Padding(
             padding: EdgeInsets.all(ScreenUtil().setHeight(10)),
-            child: CustomText(text: 'Member since February 2021',color: Colors.black,isBold: true,),
+            child: CustomText(text: 'Member since $joined',color: Colors.black,isBold: true,),
           ),
           SizedBox(height: ScreenUtil().setHeight(160),),
 
@@ -43,7 +82,7 @@ class _ProfileState extends State<Profile> {
           ///check in
           Padding(
             padding:  EdgeInsets.only(top: ScreenUtil().setHeight(40)),
-            child: CustomText(text: '45',color: Colors.black,size: ScreenUtil().setSp(150),isBold: true,),
+            child: CustomText(text: checkIns.toString(),color: Colors.black,size: ScreenUtil().setSp(150),isBold: true,),
           ),
           Padding(
             padding: EdgeInsets.all(ScreenUtil().setHeight(5)),
@@ -56,7 +95,7 @@ class _ProfileState extends State<Profile> {
           ///reviews
           Padding(
             padding:  EdgeInsets.only(top: ScreenUtil().setHeight(40)),
-            child: CustomText(text: '12',color: Colors.black,size: ScreenUtil().setSp(150),isBold: true,),
+            child: CustomText(text: reviews.toString(),color: Colors.black,size: ScreenUtil().setSp(150),isBold: true,),
           ),
           Padding(
             padding: EdgeInsets.all(ScreenUtil().setHeight(5)),
@@ -67,7 +106,7 @@ class _ProfileState extends State<Profile> {
           ///favourite
           Padding(
             padding:  EdgeInsets.only(top: ScreenUtil().setHeight(40)),
-            child: CustomText(text: '3',color: Colors.black,size: ScreenUtil().setSp(150),isBold: true,),
+            child: CustomText(text: favourites.toString(),color: Colors.black,size: ScreenUtil().setSp(150),isBold: true,),
           ),
           Padding(
             padding: EdgeInsets.all(ScreenUtil().setHeight(5)),

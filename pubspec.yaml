@@ -37,6 +37,8 @@ dependencies:
   fluttertoast: ^8.0.6
   firebase_storage: ^8.0.5
   image_picker: ^0.7.4
+  shared_preferences: ^2.0.5
+  intl: ^0.17.0
 
 dev_dependencies:
   flutter_test:

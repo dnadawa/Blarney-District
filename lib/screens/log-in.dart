@@ -1,7 +1,9 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:village_app/widgets/button.dart';
 import 'package:village_app/widgets/custom-text.dart';
 import 'package:village_app/widgets/input-field.dart';
@@ -28,6 +30,16 @@ class _LogInState extends State<LogIn> {
             email: email.text,
             password: password.text
         );
+
+        var sub = await FirebaseFirestore.instance.collection('users').where('email', isEqualTo: email.text).get();
+        var user = sub.docs;
+
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        prefs.setString('email', email.text);
+        prefs.setString('name', user[0]['fname']+" "+user[0]['lname'].toString()[0]+".");
+        prefs.setString('image', user[0]['image']);
+
+
         Navigator.of(context).pushAndRemoveUntil(
             CupertinoPageRoute(builder: (context) =>
                 Home()), (Route<dynamic> route) => false);

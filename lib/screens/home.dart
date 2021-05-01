@@ -1,11 +1,15 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:village_app/screens/business-directory.dart';
 import 'package:village_app/screens/profile.dart';
 import 'package:village_app/screens/recent-reviews.dart';
 import 'package:village_app/screens/special-offers.dart';
+import 'package:village_app/screens/welcome.dart';
 import 'package:village_app/widgets/custom-text.dart';
+import 'package:village_app/widgets/toast.dart';
 
 import 'facebook-feed.dart';
 
@@ -17,12 +21,21 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> with SingleTickerProviderStateMixin{
 
   TabController _tabController;
-
+  String image = "";
+  String name = "";
+  getUser() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      image = prefs.getString('image');
+      name = prefs.getString('name');
+    });
+  }
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     _tabController = TabController(length: 5,initialIndex: 0, vsync: this);
+    getUser();
   }
 
   @override
@@ -68,8 +81,8 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin{
               ///profile
               SizedBox(height: ScreenUtil().setHeight(100),),
               ListTile(
-                leading: CircleAvatar(backgroundColor: Colors.white,),
-                title: CustomText(text: 'Hi, Cardi B.',isBold: true,size: ScreenUtil().setSp(50),align: TextAlign.start,),
+                leading: CircleAvatar(backgroundColor: Colors.white,backgroundImage: NetworkImage(image),),
+                title: CustomText(text: 'Hi, $name',isBold: true,size: ScreenUtil().setSp(50),align: TextAlign.start,),
                 trailing: Icon(Icons.arrow_forward_ios,color: Colors.white,),
                 onTap: (){
                   Navigator.push(
@@ -137,7 +150,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin{
               ),
 
 
-              ///settings
+              ///log out
               Expanded(child: Container()),
               Divider(
                 color: Theme.of(context).accentColor,
@@ -148,6 +161,17 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin{
               ListTile(
                 leading: Icon(Icons.power_settings_new,color: Colors.white,),
                 title: CustomText(text: 'Log out',isBold: true,size: ScreenUtil().setSp(50),align: TextAlign.start,),
+                onTap: () async {
+                  await FirebaseAuth.instance.signOut();
+                  SharedPreferences prefs = await SharedPreferences.getInstance();
+                  prefs.remove('email');
+                  prefs.remove('name');
+                  prefs.remove('image');
+                  Navigator.of(context).pushAndRemoveUntil(
+                      CupertinoPageRoute(builder: (context) =>
+                          Welcome()), (Route<dynamic> route) => false);
+                  ToastBar(text: 'Logged out!',color: Colors.green).show();
+                },
               ),
               SizedBox(height: ScreenUtil().setHeight(20),),
             ],
