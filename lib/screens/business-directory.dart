@@ -113,7 +113,7 @@ class _BusinessDirectoryState extends State<BusinessDirectory> {
                             color: Colors.transparent,
                             child: FadeInImage(
                               image: NetworkImage(image),
-                              placeholder: AssetImage('images/business.png'),
+                              placeholder: AssetImage('images/logo.png'),
                             ),
                           ),
                           SizedBox(width: ScreenUtil().setWidth(20),),
