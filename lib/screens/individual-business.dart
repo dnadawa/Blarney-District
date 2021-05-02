@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -35,6 +37,16 @@ class _IndividualBusinessState extends State<IndividualBusiness> {
   String email;
   List checkIns;
   List favourites;
+  List<DocumentSnapshot> reviews;
+  StreamSubscription<QuerySnapshot> subscription;
+
+  getReviews(){
+    subscription = FirebaseFirestore.instance.collection('reviews').where('businessId', isEqualTo: widget.id).snapshots().listen((datasnapshot){
+      setState(() {
+        reviews = datasnapshot.docs;
+      });
+    });
+  }
 
   void _launchURL(String url) async =>
       await canLaunch(url) ? await launch(url) : ToastBar(text: 'Something went wrong!',color: Colors.red).show();
@@ -51,8 +63,16 @@ class _IndividualBusinessState extends State<IndividualBusiness> {
     // TODO: implement initState
     super.initState();
     getLoggedUser();
+    getReviews();
     checkIns = widget.checkIns;
     favourites = widget.favourites;
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+    subscription?.cancel();
   }
 
   @override
@@ -328,11 +348,17 @@ class _IndividualBusinessState extends State<IndividualBusiness> {
               SizedBox(height: ScreenUtil().setWidth(20),),
 
 
-              ListView(
+              reviews!=null?ListView.builder(
                 shrinkWrap: true,
                 physics: NeverScrollableScrollPhysics(),
-                children: [
-                  Padding(
+                itemCount: reviews.length,
+                itemBuilder: (context, i){
+                  String review = reviews[i]['review'];
+                  String rating = reviews[i]['rating'].toString();
+                  String authorName = reviews[i]['author'];
+                  String authorImage = reviews[i]['authorImage'];
+
+                  return Padding(
                     padding: EdgeInsets.fromLTRB(ScreenUtil().setWidth(20),0,ScreenUtil().setWidth(20),ScreenUtil().setWidth(30)),
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -345,12 +371,13 @@ class _IndividualBusinessState extends State<IndividualBusiness> {
                             ///pro pic
                             CircleAvatar(
                               radius: ScreenUtil().setWidth(70),
+                              backgroundImage: NetworkImage(authorImage),
                             ),
                             SizedBox(height: ScreenUtil().setWidth(20),),
 
                             ///name
                             CustomText(
-                              text: 'John B.',
+                              text: authorName,
                               isBold: true,
                               color: Colors.black,
                               size: ScreenUtil().setSp(45),
@@ -366,7 +393,7 @@ class _IndividualBusinessState extends State<IndividualBusiness> {
 
                               ///text review
                               Text(
-                                '"Lorem ipsum, or lipsumas it is sometimes known, is dummy text used in laying out print, graphic or web designs."',
+                                '"$review"',
                                 style: TextStyle(
                                     color: Colors.grey,
                                     fontStyle: FontStyle.italic,
@@ -382,7 +409,7 @@ class _IndividualBusinessState extends State<IndividualBusiness> {
                                 child: Padding(
                                   padding: EdgeInsets.only(right: ScreenUtil().setWidth(60)),
                                   child: RatingBarIndicator(
-                                    rating: 4,
+                                    rating: double.parse(rating),
                                     itemBuilder: (context, index) => Icon(
                                       Icons.star,
                                       color: Color(0xffD3DB11),
@@ -397,143 +424,9 @@ class _IndividualBusinessState extends State<IndividualBusiness> {
                         ),
                       ],
                     ),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.fromLTRB(ScreenUtil().setWidth(20),0,ScreenUtil().setWidth(20),ScreenUtil().setWidth(30)),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-
-                        ///person
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            ///pro pic
-                            CircleAvatar(
-                              radius: ScreenUtil().setWidth(70),
-                            ),
-                            SizedBox(height: ScreenUtil().setWidth(20),),
-
-                            ///name
-                            CustomText(
-                              text: 'John B.',
-                              isBold: true,
-                              color: Colors.black,
-                              size: ScreenUtil().setSp(45),
-                            ),
-                          ],
-                        ),
-                        SizedBox(width: ScreenUtil().setWidth(20),),
-
-                        ///review
-                        Expanded(
-                          child: Column(
-                            children: [
-
-                              ///text review
-                              Text(
-                                '"Lorem ipsum, or lipsumas it is sometimes known, is dummy text used in laying out print, graphic or web designs."',
-                                style: TextStyle(
-                                    color: Colors.grey,
-                                    fontStyle: FontStyle.italic,
-                                    fontSize: ScreenUtil().setSp(45)
-                                ),
-                                textAlign: TextAlign.justify,
-                              ),
-                              SizedBox(height: ScreenUtil().setWidth(10),),
-
-                              ///stars
-                              Align(
-                                alignment: Alignment.bottomRight,
-                                child: Padding(
-                                  padding: EdgeInsets.only(right: ScreenUtil().setWidth(60)),
-                                  child: RatingBarIndicator(
-                                    rating: 4,
-                                    itemBuilder: (context, index) => Icon(
-                                      Icons.star,
-                                      color: Color(0xffD3DB11),
-                                    ),
-                                    itemCount: 5,
-                                    itemSize: 18,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.fromLTRB(ScreenUtil().setWidth(20),0,ScreenUtil().setWidth(20),ScreenUtil().setWidth(30)),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-
-                        ///person
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            ///pro pic
-                            CircleAvatar(
-                              radius: ScreenUtil().setWidth(70),
-                            ),
-                            SizedBox(height: ScreenUtil().setWidth(20),),
-
-                            ///name
-                            CustomText(
-                              text: 'John B.',
-                              isBold: true,
-                              color: Colors.black,
-                              size: ScreenUtil().setSp(45),
-                            ),
-                          ],
-                        ),
-                        SizedBox(width: ScreenUtil().setWidth(20),),
-
-                        ///review
-                        Expanded(
-                          child: Column(
-                            children: [
-
-                              ///text review
-                              Text(
-                                '"Lorem ipsum, or lipsumas it is sometimes known, is dummy text used in laying out print, graphic or web designs."',
-                                style: TextStyle(
-                                    color: Colors.grey,
-                                    fontStyle: FontStyle.italic,
-                                    fontSize: ScreenUtil().setSp(45)
-                                ),
-                                textAlign: TextAlign.justify,
-                              ),
-                              SizedBox(height: ScreenUtil().setWidth(10),),
-
-                              ///stars
-                              Align(
-                                alignment: Alignment.bottomRight,
-                                child: Padding(
-                                  padding: EdgeInsets.only(right: ScreenUtil().setWidth(60)),
-                                  child: RatingBarIndicator(
-                                    rating: 4,
-                                    itemBuilder: (context, index) => Icon(
-                                      Icons.star,
-                                      color: Color(0xffD3DB11),
-                                    ),
-                                    itemCount: 5,
-                                    itemSize: 18,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                ],
-              ),
-
+                  );
+                },
+              ):Center(child: CircularProgressIndicator(valueColor: new AlwaysStoppedAnimation<Color>(Theme.of(context).primaryColor),),),
 
             ],
           ),

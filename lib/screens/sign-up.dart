@@ -58,7 +58,6 @@ class _SignUpState extends State<SignUp> {
           'lname': lName.text,
           'image': url,
           'email': email.text,
-          'reviews': 0,
           'joined': DateTime.now().toString()
         });
 

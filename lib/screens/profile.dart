@@ -16,7 +16,7 @@ class _ProfileState extends State<Profile> {
   String name="";
   String image="";
   int checkIns = 0;
-  int reviews = 0;
+  int reviewsCount = 0;
   int favourites = 0;
   var joined;
 
@@ -31,7 +31,6 @@ class _ProfileState extends State<Profile> {
       name = user[0]['fname']+" "+user[0]['lname'];
       image = user[0]['image'];
       joined = DateFormat('MMMM yyyy').format(DateTime.parse(user[0]['joined']));
-      reviews = user[0]['reviews'];
     });
   }
 
@@ -59,6 +58,18 @@ class _ProfileState extends State<Profile> {
     });
   }
 
+  getReviews() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String email = prefs.getString('email');
+
+    var sub = await FirebaseFirestore.instance.collection('reviews').where('authorEmail', isEqualTo: email).get();
+    var reviews = sub.docs;
+
+    setState(() {
+      reviewsCount = reviews.length;
+    });
+  }
+
 
   @override
   void initState() {
@@ -67,6 +78,7 @@ class _ProfileState extends State<Profile> {
     getUser();
     getCheckins();
     getFavourites();
+    getReviews();
   }
   
   @override
@@ -120,7 +132,7 @@ class _ProfileState extends State<Profile> {
           ///reviews
           Padding(
             padding:  EdgeInsets.only(top: ScreenUtil().setHeight(40)),
-            child: CustomText(text: reviews.toString(),color: Colors.black,size: ScreenUtil().setSp(150),isBold: true,),
+            child: CustomText(text: reviewsCount.toString(),color: Colors.black,size: ScreenUtil().setSp(150),isBold: true,),
           ),
           Padding(
             padding: EdgeInsets.all(ScreenUtil().setHeight(5)),
