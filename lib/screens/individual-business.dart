@@ -8,6 +8,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:village_app/widgets/button.dart';
 import 'package:village_app/widgets/custom-text.dart';
 import 'package:village_app/widgets/icon-text-button.dart';
 import 'package:village_app/widgets/toast.dart';
@@ -27,16 +28,21 @@ class IndividualBusiness extends StatefulWidget {
   final List checkIns;
   final List favourites;
   final String id;
+  final String name;
 
-  const IndividualBusiness({Key key, this.image, this.description, this.phone, this.facebook, this.instagram, this.twitter, this.address, this.rating, this.reviews, this.lat, this.long, this.checkIns, this.id, this.favourites}) : super(key: key);
+  const IndividualBusiness({Key key, this.image, this.description, this.phone, this.facebook, this.instagram, this.twitter, this.address, this.rating, this.reviews, this.lat, this.long, this.checkIns, this.id, this.favourites, this.name}) : super(key: key);
   @override
   _IndividualBusinessState createState() => _IndividualBusinessState();
 }
 
 class _IndividualBusinessState extends State<IndividualBusiness> {
   String email;
+  String user;
+  String proPic;
   List checkIns;
   List favourites;
+  String ratingFetched;
+  int reviewCount;
   List<DocumentSnapshot> reviews;
   StreamSubscription<QuerySnapshot> subscription;
 
@@ -55,6 +61,8 @@ class _IndividualBusinessState extends State<IndividualBusiness> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
       email = prefs.getString('email');
+      user = prefs.getString('name');
+      proPic = prefs.getString('image');
     });
   }
 
@@ -66,6 +74,8 @@ class _IndividualBusinessState extends State<IndividualBusiness> {
     getReviews();
     checkIns = widget.checkIns;
     favourites = widget.favourites;
+    ratingFetched = widget.rating;
+    reviewCount = widget.reviews;
   }
 
   @override
@@ -213,7 +223,99 @@ class _IndividualBusinessState extends State<IndividualBusiness> {
                       color: Color(0xff3800D3),
                       text: 'Leave a Review',
                       icon: Icons.rate_review,
-                      onTap: (){},
+                      onTap: (){
+                        double rating = 0;
+                        TextEditingController review = TextEditingController();
+
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return AlertDialog(
+                              title: CustomText(text: 'Leave a review',color: Colors.black,isBold: true,),
+                              content: Container(
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                      RatingBar.builder(
+                                        minRating: 1,
+                                        direction: Axis.horizontal,
+                                        allowHalfRating: true,
+                                        itemCount: 5,
+                                        itemPadding: EdgeInsets.symmetric(horizontal: 4.0),
+                                        itemBuilder: (context, _) => Icon(
+                                          Icons.star,
+                                          color: Colors.amber,
+                                        ),
+                                        onRatingUpdate: (x) {
+                                          rating = x;
+                                        },
+                                    ),
+                                    SizedBox(height: ScreenUtil().setHeight(40),),
+                                    TextField(
+                                      maxLines: null,
+                                      controller: review,
+                                      decoration: InputDecoration(
+                                        labelText: 'Review',
+                                        border: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(10),
+                                        )
+                                      ),
+                                    ),
+                                    SizedBox(height: ScreenUtil().setHeight(80),),
+                                    Button(
+                                      color: Theme.of(context).primaryColor,
+                                      text: 'Review',
+                                      onclick: () async {
+                                        ToastBar(text: 'Please wait...',color: Colors.orange).show();
+                                        double totRating = 0;
+                                        bool alreadyReviewed = false;
+                                        for(int i=0;i<reviews.length;i++){
+                                          if(reviews[i]['authorEmail']==email){
+                                            alreadyReviewed = true;
+                                          }
+                                        }
+
+                                        if(!alreadyReviewed){
+                                          await FirebaseFirestore.instance.collection('reviews').add({
+                                            'author': user,
+                                            'authorEmail': email,
+                                            'authorImage': proPic,
+                                            'businessId': widget.id,
+                                            'businessName': widget.name,
+                                            'rating': rating,
+                                            'review': review.text
+                                          });
+
+                                          for(int i=0;i<reviews.length;i++){
+                                            totRating+= reviews[i]['rating'];
+                                          }
+                                          double finalRating = totRating / reviews.length;
+                                          await FirebaseFirestore.instance.collection('businesses').doc(widget.id).update({
+                                            'reviews': FieldValue.increment(1),
+                                            'rating': double.parse(finalRating.toStringAsFixed(1))
+                                          });
+
+                                          setState(() {
+                                            ratingFetched = finalRating.toStringAsFixed(1);
+                                            reviewCount++;
+                                          });
+
+                                          ToastBar(text: 'Review added successfully',color: Colors.green).show();
+                                          Navigator.pop(context);
+                                        }
+                                        else{
+                                          ToastBar(text: 'You have already reviewed!',color: Colors.red).show();
+                                        }
+
+                                      },
+                                    )
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
+                        );
+                      },
                     ),
                   ),
                   SizedBox(width: ScreenUtil().setWidth(15),),
@@ -313,7 +415,7 @@ class _IndividualBusinessState extends State<IndividualBusiness> {
 
                   ///stars
                   RatingBarIndicator(
-                    rating: double.parse(widget.rating),
+                    rating: double.parse(ratingFetched),
                     itemBuilder: (context, index) => Icon(
                       Icons.star,
                       color: Color(0xffD3DB11),
@@ -326,7 +428,7 @@ class _IndividualBusinessState extends State<IndividualBusiness> {
 
                   ///rating text
                   CustomText(
-                    text: '${widget.rating}/5.0\n(${widget.reviews} Reviews)',
+                    text: '$ratingFetched/5.0\n($reviewCount Reviews)',
                     color: Colors.black,
                     size: ScreenUtil().setSp(35),
                     align: TextAlign.start,

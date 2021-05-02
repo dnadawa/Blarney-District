@@ -111,6 +111,7 @@ class _RecentReviewsState extends State<RecentReviews> {
                                           long: value.get('long'),
                                           id: businessId,
                                           favourites: value.get('favourites'),
+                                          name: value.get('name'),
                                         )),
                                       );
 

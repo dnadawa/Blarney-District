@@ -97,6 +97,7 @@ class _BusinessDirectoryState extends State<BusinessDirectory> {
                           long: long,
                           id: id,
                           favourites: favourites,
+                          name: name,
                         )),
                       );
                     },
