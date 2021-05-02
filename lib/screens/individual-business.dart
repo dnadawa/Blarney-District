@@ -1,8 +1,10 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:village_app/widgets/custom-text.dart';
 import 'package:village_app/widgets/icon-text-button.dart';
@@ -20,16 +22,38 @@ class IndividualBusiness extends StatefulWidget {
   final int reviews;
   final double lat;
   final double long;
+  final List checkIns;
+  final List favourites;
+  final String id;
 
-  const IndividualBusiness({Key key, this.image, this.description, this.phone, this.facebook, this.instagram, this.twitter, this.address, this.rating, this.reviews, this.lat, this.long}) : super(key: key);
+  const IndividualBusiness({Key key, this.image, this.description, this.phone, this.facebook, this.instagram, this.twitter, this.address, this.rating, this.reviews, this.lat, this.long, this.checkIns, this.id, this.favourites}) : super(key: key);
   @override
   _IndividualBusinessState createState() => _IndividualBusinessState();
 }
 
 class _IndividualBusinessState extends State<IndividualBusiness> {
+  String email;
+  List checkIns;
+  List favourites;
 
   void _launchURL(String url) async =>
       await canLaunch(url) ? await launch(url) : ToastBar(text: 'Something went wrong!',color: Colors.red).show();
+
+  getLoggedUser() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      email = prefs.getString('email');
+    });
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    getLoggedUser();
+    checkIns = widget.checkIns;
+    favourites = widget.favourites;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -138,10 +162,27 @@ class _IndividualBusinessState extends State<IndividualBusiness> {
                   ///check in
                   Expanded(
                     child: IconTextButton(
-                      color: Color(0xff0B8A28),
-                      text: 'Check In',
+                      color:  checkIns.contains(email)?Color(0xff0e6529):Color(0xff0B8A28),
+                      text: checkIns.contains(email)?'Checked In':'Check In',
                       icon: Icons.check,
-                      onTap: (){},
+                      onTap: () async {
+                          if(checkIns.contains(email)){
+                            await FirebaseFirestore.instance.collection('businesses').doc(widget.id).update({
+                              'checkins': FieldValue.arrayRemove([email])
+                            });
+                            setState(() {
+                              checkIns.remove(email);
+                            });
+                          }
+                          else{
+                            await FirebaseFirestore.instance.collection('businesses').doc(widget.id).update({
+                              'checkins': FieldValue.arrayUnion([email])
+                            });
+                            setState(() {
+                              checkIns.add(email);
+                            });
+                          }
+                       },
                     ),
                   ),
                   SizedBox(width: ScreenUtil().setWidth(15),),
@@ -160,10 +201,27 @@ class _IndividualBusinessState extends State<IndividualBusiness> {
                   ///favourite
                   Expanded(
                     child: IconTextButton(
-                      color: Color(0xffC7A92B),
-                      text: 'Add to Favourites',
+                      color: favourites.contains(email)?Color(0xff9e8721):Color(0xffC7A92B),
+                      text: favourites.contains(email)?'Added to Favourites':'Add to Favourites',
                       icon: Icons.favorite,
-                      onTap: (){},
+                      onTap: () async {
+                        if(favourites.contains(email)){
+                          await FirebaseFirestore.instance.collection('businesses').doc(widget.id).update({
+                            'favourites': FieldValue.arrayRemove([email])
+                          });
+                          setState(() {
+                            favourites.remove(email);
+                          });
+                        }
+                        else{
+                          await FirebaseFirestore.instance.collection('businesses').doc(widget.id).update({
+                            'favourites': FieldValue.arrayUnion([email])
+                          });
+                          setState(() {
+                            favourites.add(email);
+                          });
+                        }
+                      },
                     ),
                   ),
 

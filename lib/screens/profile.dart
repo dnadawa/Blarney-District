@@ -31,17 +31,42 @@ class _ProfileState extends State<Profile> {
       name = user[0]['fname']+" "+user[0]['lname'];
       image = user[0]['image'];
       joined = DateFormat('MMMM yyyy').format(DateTime.parse(user[0]['joined']));
-      checkIns = user[0]['checkins'];
       reviews = user[0]['reviews'];
-      favourites = user[0]['favourites'];
     });
   }
+
+  getCheckins() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String email = prefs.getString('email');
+
+    var sub = await FirebaseFirestore.instance.collection('businesses').where('checkins', arrayContains: email).get();
+    var business = sub.docs;
+
+    setState(() {
+      checkIns = business.length;
+    });
+  }
+
+  getFavourites() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String email = prefs.getString('email');
+
+    var sub = await FirebaseFirestore.instance.collection('businesses').where('favourites', arrayContains: email).get();
+    var business = sub.docs;
+
+    setState(() {
+      favourites = business.length;
+    });
+  }
+
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     getUser();
+    getCheckins();
+    getFavourites();
   }
   
   @override

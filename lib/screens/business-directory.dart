@@ -74,6 +74,9 @@ class _BusinessDirectoryState extends State<BusinessDirectory> {
                   int reviews = businesses[i]['reviews'];
                   double lat = businesses[i]['lat'];
                   double long = businesses[i]['long'];
+                  List checkIns = businesses[i]['checkins'];
+                  List favourites = businesses[i]['favourites'];
+                  String id = businesses[i].id;
 
                   return GestureDetector(
                     onTap: (){
@@ -90,7 +93,10 @@ class _BusinessDirectoryState extends State<BusinessDirectory> {
                           reviews: reviews,
                           twitter: twitter,
                           lat: lat,
+                          checkIns: checkIns,
                           long: long,
+                          id: id,
+                          favourites: favourites,
                         )),
                       );
                     },
