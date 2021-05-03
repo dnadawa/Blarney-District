@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:village_app/screens/business-directory.dart';
+import 'package:village_app/screens/map-page.dart';
 import 'package:village_app/screens/profile.dart';
 import 'package:village_app/screens/recent-reviews.dart';
 import 'package:village_app/screens/special-offers.dart';
@@ -207,7 +208,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin{
         controller: _tabController,
         physics: NeverScrollableScrollPhysics(),
         children: [
-          Container(color: Colors.red,),
+          MapPage(),
           FacebookFeed(),
           SpecialOffers(),
           RecentReviews(),
