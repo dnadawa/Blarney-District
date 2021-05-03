@@ -12,6 +12,7 @@ import 'package:village_app/screens/welcome.dart';
 import 'package:village_app/widgets/custom-text.dart';
 import 'package:village_app/widgets/toast.dart';
 
+import '../notifications.dart';
 import 'facebook-feed.dart';
 
 class Home extends StatefulWidget {
@@ -58,7 +59,12 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin{
         actions: [
           IconButton(
             icon: Icon(Icons.notifications),
-            onPressed: (){},
+            onPressed: (){
+              Navigator.push(
+                context,
+                CupertinoPageRoute(builder: (context) => Notifications()),
+              );
+            },
           ),
           IconButton(
             icon: Icon(Icons.person),
