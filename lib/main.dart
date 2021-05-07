@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:village_app/screens/home.dart';
 import 'package:village_app/screens/splash.dart';
-import 'package:village_app/screens/welcome.dart';
 
 void main() {
   runApp(MyApp());

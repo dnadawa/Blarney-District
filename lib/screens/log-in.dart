@@ -27,7 +27,7 @@ class _LogInState extends State<LogIn> {
     if(email.text.isNotEmpty &&password.text.isNotEmpty) {
       ToastBar(text: 'Please wait', color: Colors.orange).show();
       try {
-        UserCredential userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
+       await FirebaseAuth.instance.signInWithEmailAndPassword(
             email: email.text,
             password: password.text
         );

@@ -41,7 +41,7 @@ class _SignUpState extends State<SignUp> {
       ToastBar(text: 'Please wait',color: Colors.orange).show();
       ///auth
       try {
-        UserCredential userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+        await FirebaseAuth.instance.createUserWithEmailAndPassword(
             email: email.text,
             password: password.text
         );

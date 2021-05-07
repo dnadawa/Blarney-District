@@ -7,7 +7,6 @@ import 'package:village_app/screens/business-directory.dart';
 import 'package:village_app/screens/special-offers.dart';
 import 'package:village_app/widgets/toast.dart';
 
-import '../../notifications.dart';
 import '../welcome.dart';
 
 class AdminHome extends StatefulWidget {
