@@ -45,8 +45,10 @@ class _IndividualBusinessState extends State<IndividualBusiness> {
   int reviewCount;
   List<DocumentSnapshot> reviews;
   StreamSubscription<QuerySnapshot> subscription;
-
-  getReviews(){
+  bool isAdmin = false;
+  getReviews() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    isAdmin = prefs.getBool('isAdmin') ?? false;
     subscription = FirebaseFirestore.instance.collection('reviews').where('businessId', isEqualTo: widget.id).snapshots().listen((datasnapshot){
       setState(() {
         reviews = datasnapshot.docs;
@@ -524,6 +526,41 @@ class _IndividualBusinessState extends State<IndividualBusiness> {
                             ],
                           ),
                         ),
+
+                        ///deleteButton
+                        if(isAdmin)
+                        IconButton(
+                            icon: Icon(Icons.delete,color: Colors.red,),
+                            onPressed: (){
+                              showDialog(
+                                  context: context,
+                                  builder: (BuildContext context){
+                                    return AlertDialog(
+                                      content: CustomText(text: 'Are you sure you want to remove this review?',color: Colors.black,),
+                                      actions: [
+                                        TextButton(
+                                          child: CustomText(text: 'Yes',color: Colors.black,isBold: true,size: ScreenUtil().setSp(35),),
+                                          onPressed:  () async {
+                                                try{
+                                                  await FirebaseFirestore.instance.collection('reviews').doc(reviews[i].id).delete();
+                                                  ToastBar(text: 'Review Removed!',color: Colors.green).show();
+                                                  Navigator.pop(context);
+                                                }
+                                                catch(e){
+                                                  ToastBar(text: 'Something went wrong',color: Colors.red).show();
+                                                }
+                                          },
+                                        ),
+                                        TextButton(
+                                          child: CustomText(text: 'No',color: Colors.black, isBold: true, size: ScreenUtil().setSp(35),),
+                                          onPressed:  () {Navigator.pop(context);},
+                                        )
+                                      ],
+                                    );
+                                  }
+                              );
+                            }
+                        )
                       ],
                     ),
                   );

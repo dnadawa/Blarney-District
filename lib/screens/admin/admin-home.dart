@@ -56,17 +56,6 @@ class _AdminHomeState extends State<AdminHome> with SingleTickerProviderStateMix
             ToastBar(text: 'Logged out!',color: Colors.green).show();
           },
         ),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.notifications),
-            onPressed: (){
-              Navigator.push(
-                context,
-                CupertinoPageRoute(builder: (context) => Notifications()),
-              );
-            },
-          ),
-        ],
       ),
 
       bottomNavigationBar: Material(
