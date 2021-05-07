@@ -5,6 +5,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:village_app/widgets/button.dart';
 import 'package:village_app/widgets/custom-text.dart';
 import 'package:village_app/widgets/input-field.dart';
@@ -168,6 +169,29 @@ class _AddOfferState extends State<AddOffer> {
                             'image': url,
                             'offer': offer.text
                           });
+
+                          ///send notifications
+                          var sub = await FirebaseFirestore.instance.collection('users').get();
+                          var users = sub.docs;
+                          List playerIds = [];
+                          if(users.isNotEmpty){
+                            for(int i=0;i<users.length;i++){
+                              try{
+                                playerIds.add(users[i]['playerId']);
+                              }
+                              catch(e){
+                                print("No player ID for user ${users[i]['email']}");
+                              }
+                            }
+
+                            OneSignal.shared.postNotification(OSCreateNotification(
+                              playerIds: List<String>.from(playerIds),
+                              content: offer.text,
+                              heading: "New Special Offer at ${businessName.split('+')[0]}",
+                            ));
+
+
+                          }
 
                           ToastBar(text: 'Offer Added!',color: Colors.green).show();
                           Navigator.pop(context);
