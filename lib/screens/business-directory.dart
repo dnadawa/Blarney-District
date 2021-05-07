@@ -9,6 +9,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:village_app/screens/individual-business.dart';
 import 'package:village_app/widgets/custom-text.dart';
 
+import 'admin/add-business.dart';
+
 class BusinessDirectory extends StatefulWidget {
   @override
   _BusinessDirectoryState createState() => _BusinessDirectoryState();
@@ -44,6 +46,16 @@ class _BusinessDirectoryState extends State<BusinessDirectory> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
+      floatingActionButton: FloatingActionButton(
+        child: Icon(Icons.add,color: Colors.white,),
+        backgroundColor: Theme.of(context).primaryColor,
+        onPressed: (){
+          Navigator.push(
+            context,
+            CupertinoPageRoute(builder: (context) => AddBusiness()),
+          );
+        },
+      ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
