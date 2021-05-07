@@ -2,9 +2,12 @@ import 'dart:async';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:village_app/screens/home.dart';
 import 'package:village_app/screens/welcome.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart' as DotEnv;
 
 class Splash extends StatefulWidget {
   @override
@@ -15,6 +18,15 @@ class _SplashState extends State<Splash> {
 
   _initFirebase() async {
     await Firebase.initializeApp();
+    await DotEnv.load(fileName: ".env");
+    OneSignal.shared.init(
+        env['ONESIGNAL_ID'],
+        iOSSettings: {
+          OSiOSSettings.autoPrompt: true,
+          OSiOSSettings.inAppLaunchUrl: true
+        });
+    OneSignal.shared
+        .setInFocusDisplayType(OSNotificationDisplayType.notification);
   }
 
   @override

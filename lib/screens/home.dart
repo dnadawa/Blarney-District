@@ -1,7 +1,10 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:village_app/screens/business-directory.dart';
 import 'package:village_app/screens/map-page.dart';
@@ -25,13 +28,26 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin{
   TabController _tabController;
   String image = "";
   String name = "";
+  String email = "";
   getUser() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
       image = prefs.getString('image');
       name = prefs.getString('name');
+      email = prefs.getString('email');
+    });
+    setPlayerId();
+  }
+
+  setPlayerId(){
+    OneSignal.shared.getPermissionSubscriptionState().then((result) async {
+      var playerId = result.subscriptionStatus.userId;
+      await FirebaseFirestore.instance.collection('users').doc(email).update({
+        'playerId': playerId
+      });
     });
   }
+
   @override
   void initState() {
     // TODO: implement initState
@@ -170,6 +186,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin{
                 title: CustomText(text: 'Log out',isBold: true,size: ScreenUtil().setSp(50),align: TextAlign.start,),
                 onTap: () async {
                   await FirebaseAuth.instance.signOut();
+                  await FacebookAuth.instance.logOut();
                   SharedPreferences prefs = await SharedPreferences.getInstance();
                   prefs.remove('email');
                   prefs.remove('name');
