@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:village_app/screens/admin/add-offer.dart';
 import 'package:village_app/screens/individual-offer.dart';
 import 'package:village_app/widgets/custom-text.dart';
 
@@ -42,6 +43,16 @@ class _SpecialOffersState extends State<SpecialOffers> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
+      floatingActionButton: FloatingActionButton(
+        child: Icon(Icons.add,color: Colors.white,),
+        backgroundColor: Theme.of(context).primaryColor,
+        onPressed: (){
+          Navigator.push(
+            context,
+            CupertinoPageRoute(builder: (context) => AddOffer()),
+          );
+        },
+      ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
