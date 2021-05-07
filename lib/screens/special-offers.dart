@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:village_app/screens/admin/add-offer.dart';
 import 'package:village_app/screens/individual-offer.dart';
 import 'package:village_app/widgets/custom-text.dart';
@@ -16,8 +17,10 @@ class SpecialOffers extends StatefulWidget {
 class _SpecialOffersState extends State<SpecialOffers> {
   List<DocumentSnapshot> offers;
   StreamSubscription<QuerySnapshot> subscription;
-
-  getOffers(){
+  bool isAdmin = false;
+  getOffers() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    isAdmin = prefs.getBool('isAdmin') ?? false;
     subscription = FirebaseFirestore.instance.collection('offers').snapshots().listen((datasnapshot){
       setState(() {
         offers = datasnapshot.docs;
@@ -43,7 +46,7 @@ class _SpecialOffersState extends State<SpecialOffers> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: isAdmin?FloatingActionButton(
         child: Icon(Icons.add,color: Colors.white,),
         backgroundColor: Theme.of(context).primaryColor,
         onPressed: (){
@@ -52,7 +55,7 @@ class _SpecialOffersState extends State<SpecialOffers> {
             CupertinoPageRoute(builder: (context) => AddOffer()),
           );
         },
-      ),
+      ):null,
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [

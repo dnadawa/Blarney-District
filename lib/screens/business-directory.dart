@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:village_app/screens/individual-business.dart';
 import 'package:village_app/widgets/custom-text.dart';
 
@@ -19,8 +20,10 @@ class BusinessDirectory extends StatefulWidget {
 class _BusinessDirectoryState extends State<BusinessDirectory> {
   List<DocumentSnapshot> businesses;
   StreamSubscription<QuerySnapshot> subscription;
-
-  getBusinesses(){
+  bool isAdmin = false;
+  getBusinesses() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    isAdmin = prefs.getBool('isAdmin') ?? false;
     subscription = FirebaseFirestore.instance.collection('businesses').snapshots().listen((datasnapshot){
       setState(() {
         businesses = datasnapshot.docs;
@@ -46,7 +49,7 @@ class _BusinessDirectoryState extends State<BusinessDirectory> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: isAdmin?FloatingActionButton(
         child: Icon(Icons.add,color: Colors.white,),
         backgroundColor: Theme.of(context).primaryColor,
         onPressed: (){
@@ -55,7 +58,7 @@ class _BusinessDirectoryState extends State<BusinessDirectory> {
             CupertinoPageRoute(builder: (context) => AddBusiness()),
           );
         },
-      ),
+      ):null,
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [

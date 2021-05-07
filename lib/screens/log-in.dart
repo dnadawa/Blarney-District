@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:village_app/screens/admin/admin-home.dart';
 import 'package:village_app/widgets/button.dart';
 import 'package:village_app/widgets/custom-text.dart';
 import 'package:village_app/widgets/input-field.dart';
@@ -39,10 +40,26 @@ class _LogInState extends State<LogIn> {
         prefs.setString('name', user[0]['fname']+" "+user[0]['lname'].toString()[0]+".");
         prefs.setString('image', user[0]['image']);
 
+        bool isAdmin;
+        try{
+          isAdmin = user[0]['isAdmin'];
+        }
+        catch(e){
+          isAdmin = false;
+        }
 
-        Navigator.of(context).pushAndRemoveUntil(
-            CupertinoPageRoute(builder: (context) =>
-                Home()), (Route<dynamic> route) => false);
+        if(isAdmin){
+          prefs.setBool('isAdmin', true);
+          Navigator.of(context).pushAndRemoveUntil(
+              CupertinoPageRoute(builder: (context) =>
+                  AdminHome()), (Route<dynamic> route) => false);
+        }
+        else{
+          Navigator.of(context).pushAndRemoveUntil(
+              CupertinoPageRoute(builder: (context) =>
+                  Home()), (Route<dynamic> route) => false);
+        }
+
       } on FirebaseAuthException catch (e) {
         if (e.code == 'user-not-found') {
           ToastBar(text: 'No user found for that email', color: Colors.red).show();
