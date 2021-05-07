@@ -270,14 +270,7 @@ class _IndividualBusinessState extends State<IndividualBusiness> {
                                       onclick: () async {
                                         ToastBar(text: 'Please wait...',color: Colors.orange).show();
                                         double totRating = 0;
-                                        bool alreadyReviewed = false;
-                                        for(int i=0;i<reviews.length;i++){
-                                          if(reviews[i]['authorEmail']==email){
-                                            alreadyReviewed = true;
-                                          }
-                                        }
 
-                                        if(!alreadyReviewed){
                                           await FirebaseFirestore.instance.collection('reviews').add({
                                             'author': user,
                                             'authorEmail': email,
@@ -304,10 +297,6 @@ class _IndividualBusinessState extends State<IndividualBusiness> {
 
                                           ToastBar(text: 'Review added successfully',color: Colors.green).show();
                                           Navigator.pop(context);
-                                        }
-                                        else{
-                                          ToastBar(text: 'You have already reviewed!',color: Colors.red).show();
-                                        }
 
                                       },
                                     )

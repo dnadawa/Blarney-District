@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:village_app/widgets/button.dart';
@@ -15,6 +16,8 @@ class MapPage extends StatefulWidget {
 
 class _MapPageState extends State<MapPage> {
   Set<Marker> _markers = {};
+  String _mapStyle;
+  GoogleMapController _mapController;
 
   getBusiness() async {
     var sub = await FirebaseFirestore.instance.collection('businesses').get();
@@ -118,6 +121,9 @@ class _MapPageState extends State<MapPage> {
   void initState() {
     // TODO: implement initState
     super.initState();
+    rootBundle.loadString('images/map_style.txt').then((string) {
+      _mapStyle = string;
+    });
     getBusiness();
   }
 
@@ -128,10 +134,17 @@ class _MapPageState extends State<MapPage> {
         mapType: MapType.normal,
         rotateGesturesEnabled: false,
         initialCameraPosition: CameraPosition(
-          target: LatLng(7.8731, 80.7718),
-          zoom: 7,
+          target: LatLng(51.9336273, -8.5687435),
+          zoom: 16,
         ),
         markers: _markers,
+        onMapCreated: (controller){
+          if (mounted)
+            setState(() {
+              _mapController = controller;
+              controller.setMapStyle(_mapStyle);
+            });
+        },
       ),
     );
   }

@@ -124,7 +124,7 @@ class Welcome extends StatelessWidget {
             Padding(
               padding: EdgeInsets.all(ScreenUtil().setHeight(40)),
               child: CustomText(
-                text: "Create your free account to begin finding out what's happening in the village of Biarney and its",
+                text: "Create your free account to begin finding out what's happening in the village of Blarney and its surroundings",
                 color: Colors.black,
                 size: ScreenUtil().setSp(60),
               ),
