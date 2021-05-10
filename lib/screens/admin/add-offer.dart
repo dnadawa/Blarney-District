@@ -12,6 +12,13 @@ import 'package:village_app/widgets/input-field.dart';
 import 'package:village_app/widgets/toast.dart';
 
 class AddOffer extends StatefulWidget {
+  final String title;
+  final String description;
+  final String businessNameAndID;
+  final File image;
+  final String id;
+
+  const AddOffer({Key key, this.title, this.description, this.businessNameAndID, this.image, this.id}) : super(key: key);
   @override
   _AddOfferState createState() => _AddOfferState();
 }
@@ -48,11 +55,24 @@ class _AddOfferState extends State<AddOffer> {
     }
   }
 
+
+  setEditDetails(){
+    if(widget.title!=null&&widget.description!=null&&widget.image!=null&&widget.businessNameAndID!=null){
+      setState(() {
+        offer.text = widget.title;
+        description.text = widget.description;
+        businessName = widget.businessNameAndID;
+        image = widget.image;
+      });
+    }
+  }
+
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     getBusinesses();
+    setEditDetails();
   }
 
   @override
@@ -156,45 +176,71 @@ class _AddOfferState extends State<AddOffer> {
                       ToastBar(text: 'Please wait',color: Colors.orange).show();
                       try{
                         if(description.text.isNotEmpty && offer.text.isNotEmpty && image!=null){
-                          ///upload image
-                          FirebaseStorage storage = FirebaseStorage.instance;
-                          TaskSnapshot snap = await storage.ref('offers/'+DateTime.now().millisecondsSinceEpoch.toString()).putFile(image);
-                          String url = await snap.ref.getDownloadURL();
 
-                          ///send to database
-                          await FirebaseFirestore.instance.collection('offers').add({
-                            'business': businessName.split('+')[0],
-                            'businessId': businessName.split('+')[1],
-                            'description': description.text,
-                            'image': url,
-                            'offer': offer.text
-                          });
+                          ///update
+                          if(widget.id!=null){
+                            ///upload image
+                            FirebaseStorage storage = FirebaseStorage.instance;
+                            TaskSnapshot snap = await storage.ref('offers/'+widget.id).putFile(image);
+                            String url = await snap.ref.getDownloadURL();
 
-                          ///send notifications
-                          var sub = await FirebaseFirestore.instance.collection('users').get();
-                          var users = sub.docs;
-                          List playerIds = [];
-                          if(users.isNotEmpty){
-                            for(int i=0;i<users.length;i++){
-                              try{
-                                playerIds.add(users[i]['playerId']);
-                              }
-                              catch(e){
-                                print("No player ID for user ${users[i]['email']}");
-                              }
-                            }
+                            ///update order
+                            await FirebaseFirestore.instance.collection('offers').doc(widget.id).update({
+                              'business': businessName.split('+')[0],
+                              'businessId': businessName.split('+')[1],
+                              'description': description.text,
+                              'image': url,
+                              'offer': offer.text
+                            });
 
-                            OneSignal.shared.postNotification(OSCreateNotification(
-                              playerIds: List<String>.from(playerIds),
-                              content: offer.text,
-                              heading: "New Special Offer at ${businessName.split('+')[0]}",
-                            ));
-
-
+                            ToastBar(text: 'Offer Updated!',color: Colors.green).show();
+                            Navigator.pop(context);
                           }
 
-                          ToastBar(text: 'Offer Added!',color: Colors.green).show();
-                          Navigator.pop(context);
+                          ///create new
+                          else{
+                            ///upload image
+                            FirebaseStorage storage = FirebaseStorage.instance;
+                            TaskSnapshot snap = await storage.ref('offers/'+DateTime.now().millisecondsSinceEpoch.toString()).putFile(image);
+                            String url = await snap.ref.getDownloadURL();
+
+
+                            ///send to database
+                            await FirebaseFirestore.instance.collection('offers').add({
+                              'business': businessName.split('+')[0],
+                              'businessId': businessName.split('+')[1],
+                              'description': description.text,
+                              'image': url,
+                              'offer': offer.text
+                            });
+
+                            ///send notifications
+                            var sub = await FirebaseFirestore.instance.collection('users').get();
+                            var users = sub.docs;
+                            List playerIds = [];
+                            if(users.isNotEmpty){
+                              for(int i=0;i<users.length;i++){
+                                try{
+                                  playerIds.add(users[i]['playerId']);
+                                }
+                                catch(e){
+                                  print("No player ID for user ${users[i]['email']}");
+                                }
+                              }
+
+                              OneSignal.shared.postNotification(OSCreateNotification(
+                                playerIds: List<String>.from(playerIds),
+                                content: offer.text,
+                                heading: "New Special Offer at ${businessName.split('+')[0]}",
+                              ));
+
+
+                            }
+
+                            ToastBar(text: 'Offer Added!',color: Colors.green).show();
+                            Navigator.pop(context);
+                          }
+
                         }
                         else{
                           ToastBar(text: 'Please fill all fields!',color: Colors.red).show();

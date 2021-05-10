@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:village_app/screens/admin/admin-home.dart';
 import 'package:village_app/screens/home.dart';
 import 'package:village_app/screens/welcome.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart' as DotEnv;
@@ -37,10 +38,11 @@ class _SplashState extends State<Splash> {
     Timer(Duration(seconds: 3), () async {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String email = prefs.getString('email');
+      bool isAdmin = prefs.getBool('isAdmin') ?? false;
 
       Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(builder: (context) =>
-              email==null?Welcome():Home()), (Route<dynamic> route) => false);
+              email==null?Welcome():isAdmin?AdminHome():Home()), (Route<dynamic> route) => false);
     });
   }
   @override

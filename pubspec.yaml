@@ -44,6 +44,7 @@ dependencies:
   flutter_facebook_auth: ^3.3.3+1
   onesignal_flutter: ^2.6.3
   flutter_dotenv: ^3.1.0
+  path_provider: ^2.0.1
 
 dev_dependencies:
   flutter_test:
