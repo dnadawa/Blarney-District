@@ -8,6 +8,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:progress_dialog/progress_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:village_app/screens/individual-business.dart';
 import 'package:village_app/widgets/custom-text.dart';
@@ -294,33 +295,65 @@ class _BusinessDirectoryState extends State<BusinessDirectory> {
                               ///delete button
                               GestureDetector(
                                 onTap: () async {
-                                  // showDialog(
-                                  //     context: context,
-                                  //     builder: (BuildContext context){
-                                  //       return AlertDialog(
-                                  //         content: CustomText(text: 'Are you sure you want to remove this offer?',color: Colors.black,),
-                                  //         actions: [
-                                  //           TextButton(
-                                  //             child: CustomText(text: 'Yes',color: Colors.black,isBold: true,size: ScreenUtil().setSp(35),),
-                                  //             onPressed:  () async {
-                                  //               try{
-                                  //                 await FirebaseFirestore.instance.collection('offers').doc(offers[i].id).delete();
-                                  //                 ToastBar(text: 'Offer Removed!',color: Colors.green).show();
-                                  //                 Navigator.pop(context);
-                                  //               }
-                                  //               catch(e){
-                                  //                 ToastBar(text: 'Something went wrong',color: Colors.red).show();
-                                  //               }
-                                  //             },
-                                  //           ),
-                                  //           TextButton(
-                                  //             child: CustomText(text: 'No',color: Colors.black, isBold: true, size: ScreenUtil().setSp(35),),
-                                  //             onPressed:  () {Navigator.pop(context);},
-                                  //           )
-                                  //         ],
-                                  //       );
-                                  //     }
-                                  // );
+                                  showDialog(
+                                      context: context,
+                                      builder: (BuildContext context){
+                                        return AlertDialog(
+                                          content: CustomText(text: 'Are you sure you want to remove this offer?',color: Colors.black,),
+                                          actions: [
+                                            TextButton(
+                                              child: CustomText(text: 'Yes',color: Colors.black,isBold: true,size: ScreenUtil().setSp(35),),
+                                              onPressed:  () async {
+                                                ///declare progress dialog
+                                                ProgressDialog pr = ProgressDialog(context);
+                                                pr = ProgressDialog(context,type: ProgressDialogType.Normal, isDismissible: false, showLogs: false);
+                                                pr.style(
+                                                    message: 'Deleting...',
+                                                    borderRadius: 10.0,
+                                                    backgroundColor: Colors.white,
+                                                    progressWidget: Center(child: CircularProgressIndicator(valueColor: new AlwaysStoppedAnimation<Color>(Theme.of(context).primaryColor),)),
+                                                    elevation: 10.0,
+                                                    insetAnimCurve: Curves.easeInOut,
+                                                    messageTextStyle: TextStyle(
+                                                        color: Colors.black, fontSize: ScreenUtil().setSp(35), fontWeight: FontWeight.bold)
+                                                );
+                                                try{
+                                                  await pr.show();
+                                                  ///delete reviews
+                                                  await FirebaseFirestore.instance.collection('reviews').where('businessId', isEqualTo: id).get().then((value){
+                                                    value.docs.forEach((element) {
+                                                      FirebaseFirestore.instance.collection("reviews").doc(element.id).delete();
+                                                    });
+                                                  });
+
+                                                  ///delete offers
+                                                  await FirebaseFirestore.instance.collection('offers').where('businessId', isEqualTo: id).get().then((value){
+                                                    value.docs.forEach((element) {
+                                                      FirebaseFirestore.instance.collection("offers").doc(element.id).delete();
+                                                    });
+                                                  });
+
+                                                  ///delete business
+                                                  await FirebaseFirestore.instance.collection('businesses').doc(id).delete();
+                                                  await pr.hide();
+                                                  ToastBar(text: 'Business Removed!',color: Colors.green).show();
+                                                  Navigator.pop(context);
+                                                }
+                                                catch(e){
+                                                  ToastBar(text: 'Something went wrong',color: Colors.red).show();
+                                                  await pr.hide();
+                                                }
+
+                                              },
+                                            ),
+                                            TextButton(
+                                              child: CustomText(text: 'No',color: Colors.black, isBold: true, size: ScreenUtil().setSp(35),),
+                                              onPressed:  () {Navigator.pop(context);},
+                                            )
+                                          ],
+                                        );
+                                      }
+                                  );
                                 },
                                 child: CircleAvatar(
                                   backgroundColor: Colors.white,
