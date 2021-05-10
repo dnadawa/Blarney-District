@@ -234,72 +234,74 @@ class _IndividualBusinessState extends State<IndividualBusiness> {
                             return AlertDialog(
                               title: CustomText(text: 'Leave a review',color: Colors.black,isBold: true,),
                               content: Container(
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
+                                child: SingleChildScrollView(
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
                                       RatingBar.builder(
-                                        minRating: 1,
-                                        direction: Axis.horizontal,
-                                        allowHalfRating: true,
-                                        itemCount: 5,
-                                        itemPadding: EdgeInsets.symmetric(horizontal: 4.0),
-                                        itemBuilder: (context, _) => Icon(
-                                          Icons.star,
-                                          color: Colors.amber,
-                                        ),
-                                        onRatingUpdate: (x) {
-                                          rating = x;
-                                        },
-                                    ),
-                                    SizedBox(height: ScreenUtil().setHeight(40),),
-                                    TextField(
-                                      maxLines: null,
-                                      controller: review,
-                                      decoration: InputDecoration(
-                                        labelText: 'Review',
-                                        border: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(10),
-                                        )
+                                          minRating: 1,
+                                          direction: Axis.horizontal,
+                                          allowHalfRating: true,
+                                          itemCount: 5,
+                                          itemPadding: EdgeInsets.symmetric(horizontal: 4.0),
+                                          itemBuilder: (context, _) => Icon(
+                                            Icons.star,
+                                            color: Colors.amber,
+                                          ),
+                                          onRatingUpdate: (x) {
+                                            rating = x;
+                                          },
                                       ),
-                                    ),
-                                    SizedBox(height: ScreenUtil().setHeight(80),),
-                                    Button(
-                                      color: Theme.of(context).primaryColor,
-                                      text: 'Review',
-                                      onclick: () async {
-                                        ToastBar(text: 'Please wait...',color: Colors.orange).show();
-                                        double totRating = 0;
+                                      SizedBox(height: ScreenUtil().setHeight(40),),
+                                      TextField(
+                                        maxLines: null,
+                                        controller: review,
+                                        decoration: InputDecoration(
+                                          labelText: 'Review',
+                                          border: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(10),
+                                          )
+                                        ),
+                                      ),
+                                      SizedBox(height: ScreenUtil().setHeight(80),),
+                                      Button(
+                                        color: Theme.of(context).primaryColor,
+                                        text: 'Review',
+                                        onclick: () async {
+                                          ToastBar(text: 'Please wait...',color: Colors.orange).show();
+                                          double totRating = 0;
 
-                                          await FirebaseFirestore.instance.collection('reviews').add({
-                                            'author': user,
-                                            'authorEmail': email,
-                                            'authorImage': proPic,
-                                            'businessId': widget.id,
-                                            'businessName': widget.name,
-                                            'rating': rating,
-                                            'review': review.text
-                                          });
+                                            await FirebaseFirestore.instance.collection('reviews').add({
+                                              'author': user,
+                                              'authorEmail': email,
+                                              'authorImage': proPic,
+                                              'businessId': widget.id,
+                                              'businessName': widget.name,
+                                              'rating': rating,
+                                              'review': review.text
+                                            });
 
-                                          for(int i=0;i<reviews.length;i++){
-                                            totRating+= reviews[i]['rating'];
-                                          }
-                                          double finalRating = totRating / reviews.length;
-                                          await FirebaseFirestore.instance.collection('businesses').doc(widget.id).update({
-                                            'reviews': FieldValue.increment(1),
-                                            'rating': double.parse(finalRating.toStringAsFixed(1))
-                                          });
+                                            for(int i=0;i<reviews.length;i++){
+                                              totRating+= reviews[i]['rating'];
+                                            }
+                                            double finalRating = totRating / reviews.length;
+                                            await FirebaseFirestore.instance.collection('businesses').doc(widget.id).update({
+                                              'reviews': FieldValue.increment(1),
+                                              'rating': double.parse(finalRating.toStringAsFixed(1))
+                                            });
 
-                                          setState(() {
-                                            ratingFetched = finalRating.toStringAsFixed(1);
-                                            reviewCount++;
-                                          });
+                                            setState(() {
+                                              ratingFetched = finalRating.toStringAsFixed(1);
+                                              reviewCount++;
+                                            });
 
-                                          ToastBar(text: 'Review added successfully',color: Colors.green).show();
-                                          Navigator.pop(context);
+                                            ToastBar(text: 'Review added successfully',color: Colors.green).show();
+                                            Navigator.pop(context);
 
-                                      },
-                                    )
-                                  ],
+                                        },
+                                      )
+                                    ],
+                                  ),
                                 ),
                               ),
                             );
