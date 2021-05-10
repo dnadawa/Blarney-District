@@ -52,6 +52,7 @@ class _AddOfferState extends State<AddOffer> {
         );
       }
       setState(() {});
+      setEditDetails();
     }
   }
 
@@ -72,7 +73,6 @@ class _AddOfferState extends State<AddOffer> {
     // TODO: implement initState
     super.initState();
     getBusinesses();
-    setEditDetails();
   }
 
   @override
