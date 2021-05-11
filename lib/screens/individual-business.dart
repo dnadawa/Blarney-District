@@ -533,6 +533,26 @@ class _IndividualBusinessState extends State<IndividualBusiness> {
                                           onPressed:  () async {
                                                 try{
                                                   await FirebaseFirestore.instance.collection('reviews').doc(reviews[i].id).delete();
+
+                                                  double totRating = 0;
+                                                  for(int i=0;i<reviews.length;i++){
+                                                    totRating+= reviews[i]['rating'];
+                                                  }
+                                                  double finalRating = 0.0;
+                                                  if(totRating!=0) {
+                                                    finalRating = totRating / reviews.length;
+                                                  }
+
+                                                  setState(() {
+                                                    reviewCount--;
+                                                    ratingFetched = finalRating.toStringAsFixed(1);
+                                                  });
+
+                                                  await FirebaseFirestore.instance.collection('businesses').doc(widget.id).update({
+                                                    'reviews': FieldValue.increment(-1),
+                                                    'rating': double.parse(finalRating.toStringAsFixed(1))
+                                                  });
+
                                                   ToastBar(text: 'Review Removed!',color: Colors.green).show();
                                                   Navigator.pop(context);
                                                 }
