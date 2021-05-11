@@ -1,9 +1,17 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
+import 'package:progress_dialog/progress_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:village_app/screens/welcome.dart';
+import 'package:village_app/widgets/button.dart';
 import 'package:village_app/widgets/custom-text.dart';
+import 'package:village_app/widgets/input-field.dart';
+import 'package:village_app/widgets/toast.dart';
 
 class Profile extends StatefulWidget {
   @override
@@ -70,6 +78,103 @@ class _ProfileState extends State<Profile> {
     });
   }
 
+  deleteUser() async {
+    ProgressDialog pr = ProgressDialog(context);
+    pr = ProgressDialog(context,type: ProgressDialogType.Normal, isDismissible: false, showLogs: false);
+    pr.style(
+        message: 'Deleting Profile...',
+        borderRadius: 10.0,
+        backgroundColor: Colors.white,
+        progressWidget: Center(child: CircularProgressIndicator(valueColor: new AlwaysStoppedAnimation<Color>(Theme.of(context).primaryColor),)),
+        elevation: 10.0,
+        insetAnimCurve: Curves.easeInOut,
+        messageTextStyle: TextStyle(
+            color: Colors.black, fontSize: ScreenUtil().setSp(35), fontWeight: FontWeight.bold)
+    );
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String email = prefs.getString('email');
+      bool isFacebook = prefs.getBool('isFacebook') ?? false;
+      await pr.show();
+      await FirebaseFirestore.instance.collection('users').doc(email).delete();
+      await FirebaseFirestore.instance.collection('businesses').where('checkins', arrayContains: email).get().then((value){
+        value.docs.forEach((element) {
+          FirebaseFirestore.instance.collection("businesses").doc(element.id).update({
+            'checkins': FieldValue.arrayRemove([email])
+          });
+        });
+      });
+      await FirebaseFirestore.instance.collection('businesses').where('favourites', arrayContains: email).get().then((value){
+        value.docs.forEach((element) {
+          FirebaseFirestore.instance.collection("businesses").doc(element.id).update({
+            'favourites': FieldValue.arrayRemove([email])
+          });
+        });
+      });
+      if(!isFacebook){
+        await FirebaseAuth.instance.currentUser.delete();
+      }
+      prefs.remove('email');
+      prefs.remove('name');
+      prefs.remove('image');
+      prefs.remove('isFacebook');
+      await pr.hide();
+      ToastBar(text: 'User Account Deleted',color: Colors.green).show();
+      Navigator.of(context).pushAndRemoveUntil(
+          CupertinoPageRoute(builder: (context) =>
+              Welcome()), (Route<dynamic> route) => false);
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'requires-recent-login') {
+        await pr.hide();
+        authenticateUser();
+        ToastBar(text: 'Please reauthenticate before delete user data!',color: Colors.red).show();
+      }
+    }
+  }
+
+  authenticateUser() async {
+    TextEditingController password = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          backgroundColor: Colors.white,
+          title: CustomText(text: "Reauthenticate",align: TextAlign.center,color: Colors.black,),
+          content: Container(
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  InputField(hint: 'Enter Password',controller: password,),
+                  SizedBox(height: ScreenUtil().setHeight(130),),
+                  Button(
+                    text: 'Delete Data',
+                    color: Theme.of(context).primaryColor,
+                    onclick: ()async{
+                      ToastBar(text: 'Please Wait',color: Colors.orange).show();
+                      try{
+                        SharedPreferences prefs = await SharedPreferences.getInstance();
+                        String email = prefs.getString('email');
+                        EmailAuthCredential credential = EmailAuthProvider.credential(email: email, password: password.text);
+                        await FirebaseAuth.instance.currentUser.reauthenticateWithCredential(credential);
+                        Navigator.pop(context);
+                        deleteUser();
+                      }
+                      catch(e){
+                        ToastBar(text: 'Failed to Authenticate',color: Colors.red).show();
+                      }
+                    },
+                  )
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
 
   @override
   void initState() {
@@ -91,6 +196,42 @@ class _ProfileState extends State<Profile> {
             child: Image.asset('images/logo.png')),
         centerTitle: true,
         elevation: 0,
+        actions: [
+          IconButton(
+              icon: Icon(Icons.person_remove),
+              onPressed: () async {
+
+                showDialog(
+                    context: context,
+                    builder: (BuildContext context){
+                      return AlertDialog(
+                        content: CustomText(text: 'Are you sure you want to delete your account? You cannot get the data back',color: Colors.black,),
+                        actions: [
+                          TextButton(
+                            child: CustomText(text: 'Yes',color: Colors.black,isBold: true,size: ScreenUtil().setSp(35),),
+                            onPressed:  () async {
+                              Navigator.pop(context);
+                              SharedPreferences prefs = await SharedPreferences.getInstance();
+                              bool isFacebook = prefs.getBool('isFacebook');
+                              if(isFacebook){
+                                deleteUser();
+                              }
+                              else{
+                                authenticateUser();
+                              }
+                            },
+                          ),
+                          TextButton(
+                            child: CustomText(text: 'No',color: Colors.black, isBold: true, size: ScreenUtil().setSp(35),),
+                            onPressed:  () {Navigator.pop(context);},
+                          )
+                        ],
+                      );
+                    }
+                );
+              }
+          )
+        ],
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,

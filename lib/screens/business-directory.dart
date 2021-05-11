@@ -29,7 +29,7 @@ class _BusinessDirectoryState extends State<BusinessDirectory> {
   getBusinesses() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     isAdmin = prefs.getBool('isAdmin') ?? false;
-    subscription = FirebaseFirestore.instance.collection('businesses').snapshots().listen((datasnapshot){
+    subscription = FirebaseFirestore.instance.collection('businesses').orderBy('name').snapshots().listen((datasnapshot){
       setState(() {
         businesses = datasnapshot.docs;
       });

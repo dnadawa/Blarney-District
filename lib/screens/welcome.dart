@@ -40,6 +40,7 @@ class Welcome extends StatelessWidget {
       prefs.setString('email', x.user.email);
       prefs.setString('name', x.user.displayName.split(" ")[0]+" "+x.user.displayName.split(" ")[1][0]+".");
       prefs.setString('image', x.user.photoURL);
+      prefs.setBool('isFacebook', true);
 
       Navigator.of(context).pushAndRemoveUntil(
           CupertinoPageRoute(builder: (context) =>

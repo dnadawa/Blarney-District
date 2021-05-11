@@ -191,6 +191,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin{
                   prefs.remove('email');
                   prefs.remove('name');
                   prefs.remove('image');
+                  prefs.remove('isFacebook');
                   Navigator.of(context).pushAndRemoveUntil(
                       CupertinoPageRoute(builder: (context) =>
                           Welcome()), (Route<dynamic> route) => false);
