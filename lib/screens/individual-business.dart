@@ -1,16 +1,20 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:share/share.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:village_app/widgets/button.dart';
 import 'package:village_app/widgets/custom-text.dart';
 import 'package:village_app/widgets/icon-text-button.dart';
 import 'package:village_app/widgets/toast.dart';
+import 'package:http/http.dart' as http;
 
 class IndividualBusiness extends StatefulWidget {
   final String image;
@@ -212,6 +216,15 @@ class _IndividualBusinessState extends State<IndividualBusiness> {
                             setState(() {
                               checkIns.add(email);
                             });
+
+                            ///share image to social media
+                            var response = await http.get(Uri.parse(widget.image));
+                            var dir = await getTemporaryDirectory();
+                            String path = dir.path+'/${DateTime.now().millisecondsSinceEpoch.toString()}.png';
+                            File imageFile = File(path);
+                            imageFile.writeAsBytesSync(response.bodyBytes);
+
+                            Share.shareFiles([path]);
                           }
                        },
                     ),
