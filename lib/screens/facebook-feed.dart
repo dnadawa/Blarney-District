@@ -1,6 +1,8 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'package:webview_flutter/webview_flutter.dart';
 
@@ -10,17 +12,20 @@ class FacebookFeed extends StatefulWidget {
 }
 
 class _FacebookFeedState extends State<FacebookFeed> {
-
-  final Completer<WebViewController> _controller = Completer<WebViewController>();
+  WebViewController _controller;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: WebView(
-        initialUrl: 'file:///android_asset/flutter_assets/images/feed.html',
+        initialUrl: 'about:blank',
         javascriptMode: JavascriptMode.unrestricted,
-        onWebViewCreated: (WebViewController webViewController) {
-          _controller.complete(webViewController);
+        onWebViewCreated: (WebViewController webViewController) async {
+          _controller = webViewController;
+          String fileText = await rootBundle.loadString('images/feed.html');
+          _controller.loadUrl(Uri.dataFromString(fileText,
+                  mimeType: 'text/html', encoding: Encoding.getByName('utf-8'))
+              .toString());
         },
       ),
     );
