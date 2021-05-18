@@ -9,7 +9,8 @@ class IconTextButton extends StatelessWidget {
   final String text;
   final Function onTap;
 
-  const IconTextButton({Key key, this.color, this.icon, this.text, this.onTap}) : super(key: key);
+  const IconTextButton({Key key, this.color, this.icon, this.text, this.onTap})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -18,22 +19,21 @@ class IconTextButton extends StatelessWidget {
         style: ElevatedButton.styleFrom(
             primary: color,
             shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(40)
-            )
-        ),
+                borderRadius: BorderRadius.circular(40))),
         child: Row(
           children: [
             Icon(icon),
-            SizedBox(width: ScreenUtil().setWidth(10),),
+            SizedBox(
+              width: ScreenUtil().setWidth(10),
+            ),
             Expanded(
               child: CustomText(
                 text: text,
                 isBold: true,
-                size: ScreenUtil().setSp(34),
+                size: ScreenUtil().setSp(33),
               ),
             )
           ],
-        )
-    );
+        ));
   }
 }
