@@ -48,6 +48,8 @@ dependencies:
   progress_dialog: ^1.2.4
   image: ^3.0.2
   share: ^2.0.1
+  sign_in_with_apple: ^3.0.0
+  crypto: ^3.0.1
 
 dev_dependencies:
   flutter_test:
